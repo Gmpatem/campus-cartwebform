@@ -162,6 +162,36 @@
       transition: all 0.3s ease;
     }
     
+    /* Select dropdown styling */
+    select {
+      cursor: pointer;
+    }
+    
+    select option {
+      background: rgba(10, 25, 48, 0.95);
+      color: var(--white);
+      padding: 10px;
+      border: none;
+    }
+    
+    select optgroup {
+      background: rgba(0, 74, 173, 0.8);
+      color: var(--white);
+      font-weight: 600;
+      padding: 8px;
+    }
+    
+    select option:hover,
+    select option:focus {
+      background: rgba(92, 198, 195, 0.3);
+      color: var(--white);
+    }
+    
+    select option:checked {
+      background: var(--accent-teal);
+      color: var(--white);
+    }
+    
     input:focus, textarea:focus, select:focus {
       outline: none;
       border-color: var(--accent-teal);
@@ -173,18 +203,54 @@
       color: rgba(255, 255, 255, 0.6);
     }
 
-    .radio-group {
+    /* Toggle Button Styles */
+    .toggle-group {
       display: flex;
-      gap: 20px;
+      gap: 0;
       margin-bottom: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
     }
     
-    .radio-group label {
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .toggle-option {
+      flex: 1;
+      padding: 14px 20px;
+      text-align: center;
       cursor: pointer;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    
+    .toggle-option:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+    }
+    
+    .toggle-option.active {
+      background: var(--accent-teal);
+      color: var(--white);
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(92, 198, 195, 0.3);
+    }
+
+    /* Hidden field styles */
+    .hidden-field {
+      display: none;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+    
+    .hidden-field.show {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .nav-buttons {
@@ -316,9 +382,8 @@
         grid-template-columns: 1fr;
       }
       
-      .radio-group {
+      .toggle-group {
         flex-direction: column;
-        gap: 10px;
       }
       
       .form-step {
@@ -349,6 +414,7 @@
       <input type="hidden" id="totalPriceField" name="totalPrice">
       <input type="hidden" id="serviceFeeField" name="serviceFee">
       <input type="hidden" id="grandTotalField" name="grandTotal">
+      <input type="hidden" id="selectedService" name="service">
 
       <!-- Step 1 -->
       <div class="form-step active" data-step="1">
@@ -366,43 +432,74 @@
       <div class="form-step" data-step="2">
         <h2>Order Details</h2>
         <label>Order Type</label>
-        <div class="radio-group">
-          <label><input type="radio" name="orderType" value="Itemized" required> Itemized</label>
-          <label><input type="radio" name="orderType" value="Prepared"> Prepared</label>
+        <div class="toggle-group" id="orderTypeToggle">
+          <button type="button" class="toggle-option active" data-type="Itemized">Itemized</button>
+          <button type="button" class="toggle-option" data-type="Prepared">Prepared</button>
         </div>
+        <input type="hidden" id="orderTypeField" name="orderType" value="Itemized">
+        
         <label for="items">What do you need?</label>
         <textarea id="items" name="items" rows="4" required placeholder="Example: Burger 1 @80, Sprite 2 @25"></textarea>
+        
         <label for="vendor">Store/Vendor/Location</label>
         <input type="text" id="vendor" name="vendor" placeholder="Enter source (store/vendor/location)">
+        
         <p class="info-text" id="pickupNote" style="display:none;">For pickups, please describe the package contents and specify the pickup location clearly.</p>
       </div>
 
       <!-- Step 3 -->
       <div class="form-step" data-step="3">
         <h2>Delivery Info</h2>
+        
+        <label for="customerName">Full Name</label>
+        <input type="text" id="customerName" name="customerName" placeholder="Enter your full name" required>
+        
         <label for="building">Dorm/Building</label>
         <select id="building" name="building" required>
-          <option value="">Select</option>
-          <option value="Sampaguita">Sampaguita Hall</option>
-          <option value="Molave">Molave Hall</option>
-          <option value="Yakal">Yakal Residence</option>
-          <option value="Narra">Narra Hall</option>
-          <option value="Acacia">Acacia Hall</option>
-          <option value="NewMenDorm">New Men's Dorm</option>
-          <option value="NewLadiesDorm">New Ladies Dorm</option>
-          <option value="GraduateHall">Graduate Hall</option>
+          <option value="">Select Housing Location</option>
+          <optgroup label="Ladies' Dormitories">
+            <option value="Cadena de Amor">Cadena de Amor</option>
+            <option value="Cattleya">Cattleya</option>
+            <option value="Chrysanthemum">Chrysanthemum</option>
+            <option value="Dama de Noche">Dama de Noche</option>
+            <option value="Sampaguita">Sampaguita</option>
+            <option value="Waling-Waling">Waling-Waling</option>
+          </optgroup>
+          <optgroup label="Men's Dormitories">
+            <option value="Acacia">Acacia</option>
+            <option value="Eastern">Eastern</option>
+            <option value="Mahogany">Mahogany</option>
+            <option value="Molave">Molave</option>
+            <option value="Narra">Narra</option>
+          </optgroup>
+          <optgroup label="Apartments">
+            <option value="Apartment A & B">Apartment A & B</option>
+            <option value="Apartment E & F">Apartment E & F</option>
+            <option value="Apartment G">Apartment G</option>
+            <option value="Champaka">Champaka</option>
+            <option value="Ilang-Ilang">Ilang-Ilang</option>
+          </optgroup>
+          <optgroup label="Other">
+            <option value="Off-Campus Housing">Off-Campus Housing</option>
+          </optgroup>
         </select>
+        
         <label for="room">Room Number</label>
-        <select id="room" name="room" required>
-          <option value="">Select room</option>
-        </select>
+        <input type="text" id="room" name="room" placeholder="Enter room number" required>
+        
         <label for="contact">Contact Number</label>
         <input type="tel" id="contact" name="contact" placeholder="09XXXXXXXXX" required>
 
         <label>Payment Method</label>
-        <div class="radio-group">
-          <label><input type="radio" name="payment" value="Prepaid" required> Prepaid</label>
-          <label><input type="radio" name="payment" value="Cash"> Cash on Delivery</label>
+        <div class="toggle-group" id="paymentToggle">
+          <button type="button" class="toggle-option active" data-payment="COD">COD</button>
+          <button type="button" class="toggle-option" data-payment="Gcash">Gcash</button>
+        </div>
+        <input type="hidden" id="paymentField" name="payment" value="COD">
+        
+        <div class="hidden-field" id="gcashField">
+          <label for="gcashRef">Gcash Reference Number</label>
+          <input type="text" id="gcashRef" name="gcashRef" placeholder="Enter Gcash reference number">
         </div>
       </div>
 
@@ -445,18 +542,8 @@
     const totalPriceField = document.getElementById('totalPriceField');
     const serviceFeeField = document.getElementById('serviceFeeField');
     const grandTotalField = document.getElementById('grandTotalField');
+    const selectedServiceField = document.getElementById('selectedService');
     let generatedOrderId = '';
-
-    const rooms = {
-      "Sampaguita": ["101A", "101B", "102A", "102B", "201A", "201B"],
-      "Molave": ["101", "102", "201", "202", "301", "302"],
-      "Yakal": ["1A", "1B", "2A", "2B", "3A", "3B"],
-      "Narra": ["North Wing 101", "North Wing 102", "South Wing 101", "South Wing 102"],
-      "Acacia": ["101", "102", "201", "202"],
-      "NewMenDorm": ["101A", "101B", "201A", "201B"],
-      "NewLadiesDorm": ["101A", "101B", "201A", "201B"],
-      "GraduateHall": ["101", "102", "201", "202"]
-    };
 
     const serviceFees = {
       food: 20,
@@ -470,21 +557,39 @@
       card.addEventListener('click', function() {
         document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
         this.classList.add('selected');
+        selectedServiceField.value = this.dataset.service;
       });
     });
 
-    document.getElementById('building').addEventListener('change', function() {
-      const building = this.value;
-      const roomSelect = document.getElementById('room');
-      roomSelect.innerHTML = '<option value="">Select room</option>';
-      if (rooms[building]) {
-        rooms[building].forEach(room => {
-          const opt = document.createElement('option');
-          opt.value = room;
-          opt.textContent = room;
-          roomSelect.appendChild(opt);
-        });
-      }
+    // Order Type Toggle
+    document.querySelectorAll('#orderTypeToggle .toggle-option').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('#orderTypeToggle .toggle-option').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('orderTypeField').value = this.dataset.type;
+      });
+    });
+
+    // Payment Method Toggle
+    document.querySelectorAll('#paymentToggle .toggle-option').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('#paymentToggle .toggle-option').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('paymentField').value = this.dataset.payment;
+        
+        // Show/hide Gcash reference field
+        const gcashField = document.getElementById('gcashField');
+        const gcashInput = document.getElementById('gcashRef');
+        
+        if (this.dataset.payment === 'Gcash') {
+          gcashField.classList.add('show');
+          gcashInput.required = true;
+        } else {
+          gcashField.classList.remove('show');
+          gcashInput.required = false;
+          gcashInput.value = '';
+        }
+      });
     });
 
     function generateOrderId() {
@@ -497,17 +602,49 @@
     function calculateTotals(itemsText) {
       let totalItems = 0;
       let totalPrice = 0;
-      const lines = itemsText.split(/\n|,/);
-      lines.forEach(line => {
-        const match = line.match(/(\d+)\s*@\s*(\d+)/);
+      
+      if (!itemsText || itemsText.trim() === '') {
+        return { totalItems: 0, totalPrice: 0 };
+      }
+      
+      // More efficient regex and processing
+      const lines = itemsText.split(/[\n,]+/).filter(line => line.trim());
+      const regex = /(\d+)\s*@\s*(\d+)/;
+      
+      for (const line of lines) {
+        const match = line.match(regex);
         if (match) {
-          const qty = parseInt(match[1]);
-          const price = parseInt(match[2]);
-          totalItems += qty;
-          totalPrice += qty * price;
+          const qty = parseInt(match[1], 10);
+          const price = parseInt(match[2], 10);
+          if (!isNaN(qty) && !isNaN(price)) {
+            totalItems += qty;
+            totalPrice += qty * price;
+          }
         }
-      });
+      }
       return { totalItems, totalPrice };
+    }
+
+    function validateStep(step) {
+      switch(step) {
+        case 1:
+          return document.querySelector('.service-card.selected') !== null;
+        case 2:
+          return document.getElementById('items').value.trim() !== '';
+        case 3:
+          const name = document.getElementById('customerName').value.trim();
+          const building = document.getElementById('building').value;
+          const room = document.getElementById('room').value.trim();
+          const contact = document.getElementById('contact').value.trim();
+          const payment = document.getElementById('paymentField').value;
+          const gcashRef = document.getElementById('gcashRef').value.trim();
+          
+          if (!name || !building || !room || !contact) return false;
+          if (payment === 'Gcash' && !gcashRef) return false;
+          return true;
+        default:
+          return true;
+      }
     }
 
     function showStep(step) {
@@ -525,47 +662,98 @@
       }
     }
 
+    function generateSummary() {
+      // Generate Order ID
+      generatedOrderId = generateOrderId();
+      orderIdInput.value = generatedOrderId;
+
+      // Get values once
+      const selectedServiceElement = document.querySelector('.service-card.selected');
+      const selectedService = selectedServiceElement?.dataset.service || '';
+      const itemsValue = elements.items.value;
+      const paymentValue = document.getElementById('paymentField').value;
+      const orderTypeValue = document.getElementById('orderTypeField').value;
+      
+      // Calculate totals efficiently
+      const { totalItems, totalPrice } = calculateTotals(itemsValue);
+      const fee = serviceFees[selectedService] || 0;
+      const grandTotal = totalPrice + fee;
+
+      // Set hidden fields
+      totalItemsField.value = totalItems;
+      totalPriceField.value = totalPrice;
+      serviceFeeField.value = fee;
+      grandTotalField.value = grandTotal;
+
+      // Build payment text
+      let paymentText = paymentValue;
+      const gcashRefValue = elements.gcashRef.value;
+      if (paymentValue === 'Gcash' && gcashRefValue) {
+        paymentText += ` (Ref: ${gcashRefValue})`;
+      }
+
+      // Use template literal for faster string building
+      summaryCard.innerHTML = `
+        <p><strong>Order ID:</strong> ${generatedOrderId}</p>
+        <p><strong>Customer Name:</strong> ${elements.customerName.value}</p>
+        <p><strong>Service:</strong> ${selectedService}</p>
+        <p><strong>Order Type:</strong> ${orderTypeValue}</p>
+        <p><strong>Items:</strong> ${itemsValue}</p>
+        <p><strong>Total Items:</strong> ${totalItems}</p>
+        <p><strong>Total Price:</strong> ₱${totalPrice}</p>
+        <p><strong>Service Fee:</strong> ₱${fee}</p>
+        <p><strong>Grand Total:</strong> ₱${grandTotal}</p>
+        <p><strong>Vendor/Location:</strong> ${elements.vendor.value}</p>
+        <p><strong>Building:</strong> ${elements.building.value}</p>
+        <p><strong>Room:</strong> ${elements.room.value}</p>
+        <p><strong>Contact:</strong> ${elements.contact.value}</p>
+        <p><strong>Payment:</strong> ${paymentText}</p>
+      `;
+    }
+
+    // Cache frequently accessed elements
+    const elements = {
+      customerName: document.getElementById('customerName'),
+      items: document.getElementById('items'),
+      vendor: document.getElementById('vendor'),
+      building: document.getElementById('building'),
+      room: document.getElementById('room'),
+      contact: document.getElementById('contact'),
+      gcashRef: document.getElementById('gcashRef')
+    };
+
     nextBtn.addEventListener('click', () => {
       if (currentStep < totalSteps) {
-        if (currentStep === totalSteps-1) {
-          // Generate Order ID
-          generatedOrderId = generateOrderId();
-          orderIdInput.value = generatedOrderId;
+        // Validate current step
+        if (!validateStep(currentStep)) {
+          alert('Please fill in all required fields before proceeding.');
+          return;
+        }
 
-          // Calculate totals
-          const { totalItems, totalPrice } = calculateTotals(document.getElementById('items').value);
-          const selectedService = document.querySelector('.service-card.selected')?.dataset.service || '';
-          const fee = serviceFees[selectedService] || 0;
-          const grandTotal = totalPrice + fee;
-
-          // Set hidden fields for Google Sheet
-          totalItemsField.value = totalItems;
-          totalPriceField.value = totalPrice;
-          serviceFeeField.value = fee;
-          grandTotalField.value = grandTotal;
-
-          // Fill summary
-          const payment = document.querySelector('input[name="payment"]:checked')?.value || '';
-          const orderType = document.querySelector('input[name="orderType"]:checked')?.value || '';
-          summaryCard.innerHTML = `
-            <p><strong>Order ID:</strong> ${generatedOrderId}</p>
-            <p><strong>Service:</strong> ${selectedService}</p>
-            <p><strong>Order Type:</strong> ${orderType}</p>
-            <p><strong>Items:</strong> ${document.getElementById('items').value}</p>
-            <p><strong>Total Items:</strong> ${totalItems}</p>
-            <p><strong>Total Price:</strong> ₱${totalPrice}</p>
-            <p><strong>Service Fee:</strong> ₱${fee}</p>
-            <p><strong>Grand Total:</strong> ₱${grandTotal}</p>
-            <p><strong>Vendor/Location:</strong> ${document.getElementById('vendor').value}</p>
-            <p><strong>Building:</strong> ${document.getElementById('building').value}</p>
-            <p><strong>Room:</strong> ${document.getElementById('room').value}</p>
-            <p><strong>Contact:</strong> ${document.getElementById('contact').value}</p>
-            <p><strong>Payment:</strong> ${payment}</p>
-          `;
-        } else if (currentStep === totalSteps) {
+        // Move to next step first
+        currentStep++;
+        
+        // Generate summary when moving TO step 4 (summary page)
+        if (currentStep === 4) {
+          // Show loading state briefly
+          summaryCard.innerHTML = '<p style="text-align: center; opacity: 0.7;"><i class="fas fa-spinner fa-spin"></i> Generating summary...</p>';
+          
+          // Use requestAnimationFrame for smooth UI updates
+          requestAnimationFrame(() => {
+            try {
+              generateSummary();
+            } catch (error) {
+              console.error('Error generating summary:', error);
+              summaryCard.innerHTML = '<p style="color: #ff6b6b;">Error generating summary. Please go back and try again.</p>';
+            }
+          });
+        }
+        
+        // Handle final confirmation step
+        if (currentStep === totalSteps) {
           orderIdDisplay.textContent = `Your Order ID: ${generatedOrderId}`;
         }
-        currentStep++;
+        
         showStep(currentStep);
       }
     });
@@ -576,6 +764,9 @@
         showStep(currentStep);
       }
     });
+
+    // Initialize
+    showStep(currentStep);
   </script>
 </body>
 </html>
